@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
-from std_msgs.msg import String
-from orch_pkg.srv import *
+from std_msgs.msg import String 
 
 class FiniteStateMachine:
 
@@ -17,8 +16,9 @@ class FiniteStateMachine:
 			4: 'dumping'
 		}
 		
-	def name(self):
-		return self.switcher.get(self.state, 'Invalid State') + '_service'
+	def get_state(self):
+		s = self.switcher.get(self.state, 'Invalid State')
+		return String(s)
 
 	def next(self):
 		# Go from dumping to patrolling
@@ -29,19 +29,13 @@ class FiniteStateMachine:
 		else:
 			self.state = (self.state + 1) % self.num_states
 
-#num_states = 5
-#def state_name(i):
-#	switcher = {
-#		0: exploring
-#		1: patrolling
-#		2: approaching
-#		3: manipulating
-#		4: dumping
-#	}
-#	return switcher.get(i, 'Invalid State')
-
 
 def orchestrator():
+
+	# Initialize publisher
+	rospy.init_node('orch_node')
+	pub = rospy.Publisher('state', String, queue_size=10)
+	r = rospy.Rate(5) # 5hz
 
 	# Initialize finite state machine
 	fsm = FiniteStateMachine()
@@ -49,26 +43,16 @@ def orchestrator():
 	# Loop infinitely
 	while not rospy.is_shutdown():
 
-		# Wait until service is running
-		print('waiting on %s' % fsm.name())
-		rospy.wait_for_service(fsm.name())
-		print('%s initiated' % fsm.name())
+		# Publish state
+		pub.publish(fsm.get_state())
 
-
-		# Send the service request
-		try:
-			tmp_service = rospy.ServiceProxy(fsm.name(), ReqRes)
-			resp = tmp_service()
-			print('%s responded %s' % (fsm.name(), resp.resp))
-		except rospy.ServiceException as e:
-			print('%s call failed: %s' % (fsm.name(), e))
-
+		# TODO: Add logic to update state properly
 		# Update state
 		fsm.next()
 
+		# Publish at specified rate
+		r.sleep()
+
 
 if __name__ == '__main__':
-	try:
-		orchestrator()
-	except rospy.ROSInterruptException:
-		print('Orchestrator Failed')
+	orchestrator()
