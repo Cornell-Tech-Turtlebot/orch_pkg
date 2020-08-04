@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
+import roslaunch
 from std_msgs.msg import String 
 
 class FiniteStateMachine:
@@ -21,6 +22,11 @@ class FiniteStateMachine:
 		return String(s)
 
 	def next(self):
+		# Explore only once
+		if self.state == 0:
+			# TODO: move from explore to patrol, read explore is comleted
+			pass
+
 		# Go from dumping to patrolling
 		if self.state + 1 == self.num_states:
 			self.state = 1
@@ -35,7 +41,7 @@ def orchestrator():
 	# Initialize publisher
 	rospy.init_node('orch_node')
 	pub = rospy.Publisher('state', String, queue_size=10)
-	r = rospy.Rate(5) # 5hz
+	r = rospy.Rate(0.2) # 5hz
 
 	# Initialize finite state machine
 	fsm = FiniteStateMachine()
