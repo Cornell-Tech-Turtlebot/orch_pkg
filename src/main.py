@@ -40,7 +40,7 @@ class FiniteStateMachine:
 			        print('SUBSCRIBED--------- ------------------------------------------------')
 				self.exploring_subscribed = True
 
-			# Launch turtlebot3_navigation, as part of next state		
+			# Launch next state 
 			if self.exploring_completed:
 				# TODO: change path to catkin_ws
 			        print('DONE EXPLORING--------- ------------------------------------------------')
@@ -51,16 +51,25 @@ class FiniteStateMachine:
 				launch.start()
 				rospy.loginfo('navigation launched')
 
+				# Launch patrol file
+				package = 'patrol'
+				executable = 'random_nav_orch.py'
+				node = roslaunch.core.Node(package, executable)
+				launch = roslaunch.scriptapi.ROSLaunch()
+				launch.start()
+				process = launch.launch(node)
+				# TODO: process.stop()???
+
 				# Increment state
 				self.state += 1
 
-		# Go to next state 
-		elif self.state + 1 < self.num_states:
-			self.state += 1 
+		## Go to next state 
+		#elif self.state + 1 < self.num_states:
+		#	self.state += 1 
 
-		# Restart the cycle excluding exploring, go from dumping to patrolling
-		else:
-			self.state = 1
+		## Restart the cycle excluding exploring, go from dumping to patrolling
+		#else:
+		#	self.state = 1
 
 
 
