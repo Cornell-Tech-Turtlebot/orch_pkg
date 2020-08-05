@@ -1,16 +1,18 @@
 <launch>
 
+  <!-- Gazebo (run launch file) -->
+  <include file="$(find turtlebot3_gazebo)/launch/turtlebot3_world.launch"/>
+
   <!-- SLAM (run launch file) -->
   <include file="$(find turtlebot3_slam)/launch/turtlebot3_slam.launch"/>
 
   <!-- Move Base (run launch file) -->
   <include file="$(find turtlebot3_navigation)/launch/move_base.launch"/>
-  <!-- include file="$(find turtlebot3_navigation)/launch/turtlebot3_navigation.launch"/-->
 
   <!-- Explore Lite (run launch file) -->
   <include file="$(find explore_lite)/launch/explore.launch"/>
 
   <!-- Orchestration (run python file) -->
-  <!--node pkg="orch_pkg" type="main.py" name="orch_pkg" output="screen"/-->
+  <node pkg="orch_pkg" type="main.py" name="orch_pkg" output="screen"/>
 
 </launch>
